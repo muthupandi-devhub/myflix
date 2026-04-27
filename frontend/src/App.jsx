@@ -1,5 +1,6 @@
 import React, { useState } from "react";
- import axios from "axios";
+import axios from "axios";
+
 // Images
 import bg from "./assets/img/bg.jpg";
 import img1 from "./assets/img/img-1.jpg";
@@ -11,15 +12,12 @@ import img6 from "./assets/img/img-6.jpg";
 import img7 from "./assets/img/img-7.jpg";
 import img8 from "./assets/img/img-8.jpg";
 
-// Movie array
 const movies = [img1, img2, img3, img4, img5, img6, img7, img8];
 
-// Reusable Movie Row Component
 const MovieRow = ({ title }) => (
   <div className="px-5 mt-10">
     <h3 className="text-2xl mb-4 font-semibold">{title}</h3>
-
-    <div className="flex gap-5 overflow-x-scroll scrollbar-hide pb-4">
+    <div className="flex gap-5 overflow-x-scroll pb-4">
       {movies.map((movie, index) => (
         <img
           key={index}
@@ -33,50 +31,44 @@ const MovieRow = ({ title }) => (
 );
 
 function App() {
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
-  // Login function
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-
-const handleLogin = async (e) => {
-  e.preventDefault();
-
-  if (!email || !password) {
-    setError("Please fill all fields");
-    return;
-  }
-
-  try {
-    const res = await axios.post("http://localhost:5000/login", {
-      email,
-      password,
-    });
-
-    console.log("SUCCESS:", res.data); 
-
-    if (res.data.success) {
-      setIsLoggedIn(true);
-      setError("");
+    if (!email || !password) {
+      setError("Please fill all fields");
+      return;
     }
-  } catch (err) {
-    console.log("ERROR:", err.response || err.message); // ✅ DEBUG
 
-    setError(
-      err.response?.data?.message || "Server not reachable"
-    );
-  }
-};
+    try {
+      const res = await axios.post(`${API_URL}/login`, {
+        email,
+        password,
+      });
+
+      if (res.data.success) {
+        setIsLoggedIn(true);
+        setError("");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Server not reachable");
+    }
+  };
+
   const handleLogout = () => {
     setIsLoggedIn(false);
     setEmail("");
     setPassword("");
   };
 
-  // ================= LOGIN PAGE =================
+  // LOGIN PAGE
   if (!isLoggedIn) {
     return (
       <div
@@ -84,7 +76,6 @@ const handleLogin = async (e) => {
         style={{ backgroundImage: `url(${bg})` }}
       >
         <div className="w-full max-w-md bg-black/80 p-8 rounded-lg border border-gray-800 shadow-2xl">
-          
           <h1 className="text-4xl text-red-600 font-bold text-center mb-6">
             MyFlix
           </h1>
@@ -94,7 +85,6 @@ const handleLogin = async (e) => {
           )}
 
           <form onSubmit={handleLogin} className="space-y-4">
-
             <input
               type="email"
               placeholder="Email"
@@ -128,11 +118,9 @@ const handleLogin = async (e) => {
     );
   }
 
-  // ================= HOME PAGE =================
+  // HOME PAGE
   return (
     <div className="bg-black text-white min-h-screen">
-
-      {/* Navbar */}
       <nav className="fixed top-0 w-full bg-black/90 p-5 flex justify-between items-center z-50">
         <h1 className="text-3xl text-red-600 font-bold">MyFlix</h1>
 
@@ -147,7 +135,6 @@ const handleLogin = async (e) => {
         </div>
       </nav>
 
-      {/* Banner */}
       <header
         className="h-[400px] flex flex-col justify-center pl-10 mt-20 bg-cover bg-center"
         style={{ backgroundImage: `url(${bg})` }}
@@ -163,11 +150,9 @@ const handleLogin = async (e) => {
         </button>
       </header>
 
-      {/* Movie Sections */}
       <MovieRow title="Trending Now" />
       <MovieRow title="Popular Movies" />
       <MovieRow title="Top Rated" />
-
     </div>
   );
 }
