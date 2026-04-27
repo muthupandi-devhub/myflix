@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+ import axios from "axios";
 // Images
 import bg from "./assets/img/bg.jpg";
 import img1 from "./assets/img/img-1.jpg";
@@ -40,23 +40,36 @@ function App() {
   const [error, setError] = useState("");
 
   // Login function
-  const handleLogin = (e) => {
-    e.preventDefault();
 
-    if (!email || !password) {
-      setError("Please fill all fields");
-      return;
+
+const handleLogin = async (e) => {
+  e.preventDefault();
+
+  if (!email || !password) {
+    setError("Please fill all fields");
+    return;
+  }
+
+  try {
+    const res = await axios.post("http://localhost:5000/login", {
+      email,
+      password,
+    });
+
+    console.log("SUCCESS:", res.data); 
+
+    if (res.data.success) {
+      setIsLoggedIn(true);
+      setError("");
     }
+  } catch (err) {
+    console.log("ERROR:", err.response || err.message); // ✅ DEBUG
 
-    if (password.length < 4) {
-      setError("Password must be at least 4 characters");
-      return;
-    }
-
-    setError("");
-    setIsLoggedIn(true);
-  };
-
+    setError(
+      err.response?.data?.message || "Server not reachable"
+    );
+  }
+};
   const handleLogout = () => {
     setIsLoggedIn(false);
     setEmail("");
